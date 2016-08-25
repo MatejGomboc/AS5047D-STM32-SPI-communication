@@ -77,25 +77,33 @@ int main(void)
 	AS5047D_Init();
 	AS5047D_SetZero();
 
+	HAL_TIM_Base_MspInit(&htim9);
+
 	/* Infinite loop */
 	while (1)
 	{
+		// reading is done in interrupt, see below !
+	}
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance==TIM9)
+	{
 		/* Register dump */
-		ERRFL = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ERRFL) & 0x3FFF; // strip bit 14..15
-		PROG = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_PROG) & 0x3FFF; // strip bit 14..15
-		DIAAGC = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_DIAAGC) & 0x3FFF; // strip bit 14..15
-		ANGLEUNC = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ANGLEUNC) & 0x3FFF; // strip bit 14..15
-		NOP = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_NOP) & 0x3FFF; // strip bit 14..15
-		CORDICMAG = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_CORDICMAG) & 0x3FFF; // strip bit 14..15
-		ANGLECOM = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ANGLECOM) & 0x3FFF; // strip bit 14..15
-		ZPOSM = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ZPOSM) & 0x3FFF; // strip bit 14..15
-		ZPOSL = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ZPOSL) & 0x3FFF; // strip bit 14..15
-		SETTINGS1 = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_SETTINGS1) & 0x3FFF; // strip bit 14..15
-		SETTINGS2 = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_SETTINGS2) & 0x3FFF; // strip bit 14..15
+		ERRFL = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ERRFL);
+		PROG = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_PROG);
+		DIAAGC = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_DIAAGC);
+		ANGLEUNC = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ANGLEUNC);
+		NOP = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_NOP);
+		CORDICMAG = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_CORDICMAG);
+		ANGLECOM = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ANGLECOM);
+		ZPOSM = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ZPOSM);
+		ZPOSL = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_ZPOSL);
+		SETTINGS1 = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_SETTINGS1);
+		SETTINGS2 = AS5047D_Read(AS4047D_CS1_Port, AS4047D_CS1_Pin, AS4047D_SETTINGS2);
 
 		true_angle = AS5047D_Get_True_Angle_Value();
-
-		HAL_Delay(100);
 	}
 }
 
@@ -108,7 +116,7 @@ int main(void)
  */
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
-	while (1);
+	Error_Handler();
 }
 
 /** System Clock Configuration
@@ -158,9 +166,11 @@ void SystemClock_Config(void)
  * @param  None
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
 	/* User can add his own implementation to report the HAL error return state */
-	while (1) {
+	while (1)
+	{
 	}
 }
 

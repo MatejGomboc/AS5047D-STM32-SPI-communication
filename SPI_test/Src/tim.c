@@ -57,12 +57,10 @@ void MX_TIM9_Init(void)
   {
     Error_Handler();
   }
-
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
-
   if(tim_baseHandle->Instance==TIM9)
   {
     /* Peripheral clock enable */
@@ -71,23 +69,30 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     /* Peripheral interrupt init */
     HAL_NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn);
+
+    if(HAL_TIM_Base_Start_IT(tim_baseHandle) != HAL_OK)
+    {
+    	Error_Handler();
+    }
   }
 }
 
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 {
+   if(tim_baseHandle->Instance==TIM9)
+   {
+	  if(HAL_TIM_Base_Stop_IT(tim_baseHandle) != HAL_OK)
+	  {
+		Error_Handler();
+	  }
 
-  if(tim_baseHandle->Instance==TIM9)
-  {
-    /* Peripheral clock disable */
-    __HAL_RCC_TIM9_CLK_DISABLE();
+	  /* Peripheral clock disable */
+	  __HAL_RCC_TIM9_CLK_DISABLE();
 
-    /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(TIM1_BRK_TIM9_IRQn);
-
-  }
-} 
-
+	  /* Peripheral interrupt Deinit*/
+	  HAL_NVIC_DisableIRQ(TIM1_BRK_TIM9_IRQn);
+   }
+}
 
 /**
   * @}
